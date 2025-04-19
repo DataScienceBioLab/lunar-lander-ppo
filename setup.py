@@ -5,7 +5,7 @@ setup(
     version="0.1.0",
     packages=find_packages(),
     install_requires=[
-        "gymnasium==0.29.1",
+        "gymnasium[box2d]==0.29.1",
         "numpy>=1.22.0",
         "torch>=2.0.0",
         "matplotlib>=3.5.0",

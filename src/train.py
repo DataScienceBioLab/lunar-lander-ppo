@@ -95,7 +95,7 @@ def train(args, env_params, agent_params, training_params, logging_params):
     # Create environment using provided parameters
     print("Creating environment with params:", env_params)
     env = EnvWrapper(
-        env_name=env_params.get("id", ENV_CONFIG.get(args.env, {}).get("id")),
+        env_name=env_params.get("env_id", env_params.get("id", ENV_CONFIG.get(args.env, {}).get("id"))),
         seed=seed,
         device=device,
         **env_params # Pass all env params from the strategy config

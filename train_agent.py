@@ -6,6 +6,7 @@ Main training script for lunar lander PPO agent.
 import argparse
 import os
 from pathlib import Path
+import time
 
 def parse_args():
     """Parse command line arguments."""
@@ -56,24 +57,58 @@ def main():
     os.makedirs(args.checkpoint_dir, exist_ok=True)
     
     # Import here to avoid circular imports
-    from src.train import train_ppo
+    from src.train import train
+    from src.utils.config import ENV_CONFIG, PPO_CONFIG, TRAINING_CONFIG
+    
+    # Set up arguments for train function
+    train_args = argparse.Namespace()
+    train_args.algo = "ppo"
+    train_args.env = "lunarlander"
+    train_args.max_episodes = args.episodes
+    train_args.seed = None
+    train_args.no_cuda = False
+    train_args.save_dir = args.checkpoint_dir
+    train_args.exp_name = f"ppo_lunarlander_{int(time.time())}"
+    train_args.verbose = True
+    train_args.record_video = args.render
+    train_args.reward_strategy = None
+    
+    # Set up clean environment parameters
+    # The train function will extract env_name from args.env
+    env_params = {
+        "landing_reward_scale": args.landing_reward_scale,
+        "velocity_penalty_scale": args.velocity_penalty_scale,
+        "angle_penalty_scale": args.angle_penalty_scale,
+        "distance_penalty_scale": args.distance_penalty_scale,
+        "fuel_penalty_scale": args.fuel_penalty_scale,
+    }
+    
+    # Update args.env to match what we want to use
+    train_args.env = "lunarlander"
+    
+    # Set up agent parameters
+    agent_params = PPO_CONFIG.copy()
+    agent_params.update({
+        "batch_size": args.batch_size,
+        "learning_rate": args.lr,
+    })
+    
+    # Set up training parameters
+    training_params = TRAINING_CONFIG.copy()
+    training_params.update({
+        "max_episodes": args.episodes,
+        "save_freq": args.save_freq,
+        "log_freq": args.eval_freq,
+    })
+    
+    # Set up logging parameters
+    logging_params = {
+        "log_dir": args.log_dir,
+        "models_dir": args.checkpoint_dir,
+    }
     
     # Run training
-    train_ppo(
-        episodes=args.episodes,
-        batch_size=args.batch_size,
-        learning_rate=args.lr,
-        landing_reward_scale=args.landing_reward_scale,
-        velocity_penalty_scale=args.velocity_penalty_scale,
-        angle_penalty_scale=args.angle_penalty_scale,
-        distance_penalty_scale=args.distance_penalty_scale,
-        fuel_penalty_scale=args.fuel_penalty_scale,
-        log_dir=args.log_dir,
-        checkpoint_dir=args.checkpoint_dir,
-        eval_freq=args.eval_freq,
-        save_freq=args.save_freq,
-        render=args.render
-    )
+    train(train_args, env_params, agent_params, training_params, logging_params)
 
 if __name__ == "__main__":
     main() 

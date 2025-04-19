@@ -56,8 +56,34 @@ def test_agent(model_path, num_episodes, env_params, seed=42, record_video=False
     # Set device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-    # Load agent
-    agent = PPOAgent.load(model_path, device=device)
+    try:
+        # Try loading with new PyTorch behavior
+        agent = PPOAgent.load(model_path, device=device)
+    except Exception as e:
+        print(f"Warning: Could not load with weights_only=True. Trying with weights_only=False...")
+        # Monkey patch the PPOAgent.load method to use weights_only=False
+        original_load = PPOAgent.load
+        def patched_load(path, device="cpu"):
+            checkpoint = torch.load(path, map_location=device, weights_only=False)
+            state_dict = checkpoint["model_state_dict"]
+            hyperparams = checkpoint.get("hyperparams", {})
+            
+            # Create a new agent with the hyperparameters
+            agent = PPOAgent(
+                state_dim=hyperparams.get("state_dim", 8),
+                action_dim=hyperparams.get("action_dim", 4),
+                discrete=hyperparams.get("discrete", True),
+                **{k: v for k, v in hyperparams.items() if k not in ["state_dim", "action_dim", "discrete"]}
+            )
+            agent.to(device)
+            agent.load_state_dict(state_dict)
+            agent.eval()
+            return agent
+        
+        # Replace the load method
+        PPOAgent.load = patched_load
+        agent = PPOAgent.load(model_path, device=device)
+    
     agent.eval()  # Set to evaluation mode
     
     # Create environment with video recording capability if requested

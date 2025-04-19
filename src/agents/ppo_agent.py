@@ -369,7 +369,13 @@ class PPOAgent:
         Returns:
             PPOAgent: Loaded agent
         """
-        checkpoint = torch.load(path, map_location=device)
+        try:
+            # First try with weights_only=True (default in PyTorch 2.6+)
+            checkpoint = torch.load(path, map_location=device)
+        except Exception as e:
+            # If that fails, try with weights_only=False (for PyTorch 2.6+)
+            print(f"Warning: Error loading with default settings. Trying with weights_only=False: {e}")
+            checkpoint = torch.load(path, map_location=device, weights_only=False)
         
         # Create agent
         agent = cls(
