@@ -71,3 +71,11 @@ results/*
 
 # MacOS files
 .DS_Store 
+
+# Marp presentation
+marp_presentation/node_modules/
+marp_presentation/*.pdf
+marp_presentation/*.pptx
+# Include presentation.html for easy viewing without rebuilding
+# Uncomment the next line if you want to exclude the HTML file
+# marp_presentation/presentation.html 

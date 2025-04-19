@@ -1,0 +1,15 @@
+{
+  "name": "lunar-lander-presentation",
+  "version": "1.0.0",
+  "description": "Lunar Lander Reinforcement Learning Presentation",
+  "scripts": {
+    "start": "marp -s . --allow-local-files",
+    "build": "marp presentation.md --html --allow-local-files",
+    "pdf": "marp presentation.md --pdf --allow-local-files",
+    "pptx": "marp presentation.md --pptx --allow-local-files"
+  },
+  "author": "Kevin Mok",
+  "dependencies": {
+    "@marp-team/marp-cli": "^2.5.0"
+  }
+} 

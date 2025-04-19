@@ -1,0 +1,8 @@
+{
+    "landing_reward_scale": 1.7,
+    "velocity_penalty_scale": 0.3,
+    "angle_penalty_scale": 0.7,
+    "distance_penalty_scale": 0.1,
+    "fuel_penalty_scale": 0.0,
+    "safe_landing_bonus": 200.0
+}
